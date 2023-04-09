@@ -93,7 +93,11 @@ dashboard memory watch (type cast)POSMEM [<tamanio>]
 el argumento opcional <tamanio> puede ser incluso una expresion, por ejemplo:
 
 si se quiere monitorear una posicion de memoria con una variable de programa tipo int (VAR1)  castear a puntero a entero la posmem de la variable, caso contrario mostrara el casillero de memoria que corresopnde al nro almacenado en la variable
-    dashboard memory watch (int*)&VAR1 sizeof(int)
+
+	dashboard memory watch (int*)&VAR1 sizeof(int)
+
 para limpiar todos los watch de memoria:
-    dashboard memory clear
+
+	dashboard memory clear
+
 esto los borra tdos, no se puede elegir uno para descartar
