@@ -1,78 +1,101 @@
-QEMU toolchain for MAC survival kit (Apple silicon Mx)
+QEMU-GDB-DASHBOARD Survival Kit
 
-(ENGLISH VERSION, para la version en ESPÑOL buscar al final del documento)
-It can be used in two ways:
-* Directly on macOS
-* Bye means of virtualized VM running UBUNTU for ARM64 arch
+El dashboard se instala como .gdbinit en la carpeta raiz del usuario actual
+descargarlo de : https://github.com/cyrus-and/gdb-dashboard
 
-First case, native macOS:
-* install gcc-arm-none-eabi
-download package gcc-arm-none-eabi-10.3-2021.10-mac.pkg (or the most recent version available) from: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads.
-it'll be installed more probably in:
+luego para que el DASHBOARD muestre por defecto los registros de la arquitectura ARM, hay que agregar a mano en una carpeta para que levante automaticamente esta configuracion el DASHBOARD:
 
-/Applications/ARM/bin/
+en el ~/ del usaurio actual hacer:
 
-but could be in another location as well, in any case it is very important to note down this directory because it must be added to PATH environment var in .Xshrc (bash, zsh, or whatever shell you want to use).
-In case you already have homebrew installed for x86 arch Mac (probably migrating an intel mac to an M1 mac i.e.) in your M1 mac, remove homebrew following instructions in homebrew's site.
-Then reinstal homebrew (also following install instructions from homebrew's site), and probably you have to install again some other packages with homebrew (like python, etc.)
+$ mkdir .gdbinit.d
+$ cd .gdbinit.d
+$ echo set architecture arm
+$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" > init  
 
-* install qemu with homebrew
+(ojo las comillas simples y dobles!)
 
-$ brew install qemu
+Para utilizarlo con QEMU, luego de compilar nuestro programa, lanzar el QEMU con las opciones en linea d ecomando:
 
-Second case, VM with UBUNTU 22.04-LTS aArch64
-As a test case it was installed using UTM (Universal Turing Machine: https://mac.getutm.app) virtualizing on Apple M2 silicon.
-Once ubuntu VM is ready, install then qemu and gcc-arm-none-eabi packages:
-
-$ sudo apt install qemu 
-$ sudo apt install gcc-arm-none-eabi
-
--------------------------------------------------------------------------
-(SPANISH VERSION)
-
-se puede utilizar de dos formas:
-* Directamente sobre el macOS
-* en una VM virtualizada correindo UBUNTU para ARM64
+- en la linea de comnando del qemu agregar los switches -s y -S (start stopped y escucha de conexion por port 1234)
+	esto es independiente del monitoreo por la opcoin server en el otro puerto que se elije para conectar por telnet
+- en otra terminal iniciar el gdb usando el .gdbinit descargado del gihub de dashboard (ver arriba)
+- en el gdb ejecutar: 
 
 
-se puede utilizar de dos formas:
-- Directamente sobre el macOS
-- en una VM virtualizada correindo UBUNTU para ARM64
+    si no se especifico el archivo de programa a depuerar en linea de comando:
 
+    file <mi-objeto.o> 
+si tiene tabla de simbolos, mejor
+    target remote localhost:1234 
+(es el puerto en que escucha el qemu)
 
-Primer caso, macOS nativo:
----------------------------
- - primero instalar gcc-arm-none-eabi
+	
+al cargar el fuente del programa la configuracion de DASHBOARD nos va a mostrar automaticamente por defecto varias areas con informacion variada (registros, memoria, etc) esto es configurable, ver la documentacion de dashboard para eso.
 
-descargar el paquete : gcc-arm-none-eabi-10.3-2021.10-mac.pkg (o loa version mas receinte) desde:
-https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads.
+- se pueden utilizan los comandos estandar de gdb de todas formas:
 
-esto se instala por lo general en 
+    continue o c
+: continua el programa hasta el breakpoint siguiente
 
-/Applications/ARM/bin/
+    si 
+: step instruction, avanza una instruccion
 
-pero puede llegar a ser en otra ubicacion, es importante averiguar esto, porque hay que agregar al PATH del .Xshrc (bash, zsh, o el shell que se quiera usar) este directorio
+    set $<reg>=valor 
+: setea valor en el registro <reg>, ej: 
+    set $pc=0x70010000 
+setea el program counter a direccion 0x70010000
 
-en caso de tener instalado homebrew para intel en mac con M1, remover el homebrew con las instrucciones de la pagina de homebrew
+x [/fmt] [<addr>]: examina memoria en varios formatos
+    - donde:
+        - /fmt es el formateo de datos de la siguiente forma:
+		es una cantidad de elementos seguido de una letra de formato y una letra de tamanio
+		Format letters are 
+        - o(octal), 
+        - x(hex)
+        - d(decimal)
+        - u(unsigned decimal),
+        - t(binary)
+        - f(float)
+        - a(address)
+        - i(instruction)
+        - c(char)
+        - s(string)
+        - z(hex, zero padded on the left).
+		Size letters are:
+        - b(byte)
+        - h(halfword)
+        - w(word), 
+        - g(giant, 8 bytes).
 
-luego volverlo a instalar (tambien con las instrucciones de la pagina de homebrew)
+    break *<addr>
+: pone el breakpoint en la direccion <addr>
 
-puede que haya que volver a instalar con homebrew algunos paquetes (python, etc), hacerlo
+    maint info breakpoints 
+: listado de breakpoints y watchpoints activos
 
- - intalar qemu con homebrew: 
+    delete <num>
+: remueve el brea(watch)kpoint numero <num> (listado con maint info)
 
-$ brew install qemu
+    watch <expr> [mask]
+: agrega watchpoint sobre el resultado de <expr> puede ser una pos de mem un registro, un calculo, etc, siempre casteandolo a un tipo de dato, ej:
+     watch *(int)$r1
+: agrega un watchpoint que detiene ejecucion al cambiar de valor r1
 
+tambien se puede agregar una mascara (opcional) como campo de bits
 
-Segundo caso, VM con UBUNTU 22.04-LTS aArch64
----------------------------------------------
+    i r [lista de regs] 
+: info de registros, se puede agregar cuales ver sino muestra todos
 
-Como ejemplo se instalo el Ubuntu en UTM (Universal Turing Machine: https://mac.getutm.app) virtualizando sobre procesador Apple M2
+para agregar un watch sobre una area de memoria:
 
-Una vez instalado el ububtu, instalar luego los paquetes de qemu y gcc-arm-none-eabi:
+dashboard memory watch (type cast)POSMEM [<tamanio>]
 
-$ sudo apt install qemu
-$ sudo apt install gcc-arm-none-eabi
+el argumento opcional <tamanio> puede ser incluso una expresion, por ejemplo:
 
+si se quiere monitorear una posicion de memoria con una variable de programa tipo int (VAR1)  castear a puntero a entero la posmem de la variable, caso contrario mostrara el casillero de memoria que corresopnde al nro almacenado en la variable
 
+    dashboard memory watch (int*)&VAR1 sizeof(int)
 
+para limpiar todos los watch de memoria:
+    dashboard memory clear
+esto los borra tdos, no se puede elegir uno para descartar
