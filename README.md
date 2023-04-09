@@ -9,8 +9,8 @@ en el ~/ del usaurio actual hacer:
 
 	$ mkdir .gdbinit.d
 	$ cd .gdbinit.d
-	$ echo set architecture arm
-	$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" > init  
+	$ echo set architecture arm > init
+	$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" >> init  
 
 (ojo las comillas simples y dobles!)
 
