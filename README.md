@@ -3,9 +3,11 @@ QEMU-GDB-DASHBOARD Survival Kit
 El dashboard se instala como .gdbinit en la carpeta raiz del usuario actual
 descargarlo de : https://github.com/cyrus-and/gdb-dashboard
 
-luego para que el DASHBOARD muestre por defecto los registros de la arquitectura ARM, hay que agregar a mano en una carpeta para que levante automaticamente esta configuracion el DASHBOARD:
+luego para que el DASHBOARD muestre por defecto los registros de la arquitectura ARM hay que indicarle esto con un archivo de configuracion personalizado para que levante automaticamente esta configuracion, esto se indica agregando una linea como primer liena del .gdbinit que descargamos antes, entonces abrirlo con un editor (nano p/ej.) y agregarle lo siguiente:
 
-en el ~/ del usaurio actual hacer:
+	add-auto-load-safe-path ./.gdbinit.d/
+
+ahora en el ~/ (dir. home) del usaurio actual hacer:
 
 	$ mkdir .gdbinit.d
 	$ cd .gdbinit.d
@@ -13,16 +15,14 @@ en el ~/ del usaurio actual hacer:
 	$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" >> init  
 
 (ojo las comillas simples y dobles!)
+esto crea un archivo de configuracion que agrega lo que necesitamos para usar el set de registros de la arq. ARM en DASHBOARD
+Para utilizarlo con QEMU, luego de compilar nuestro programa, lanzar el QEMU con las opciones en linea de comando:
 
-Para utilizarlo con QEMU, luego de compilar nuestro programa, lanzar el QEMU con las opciones en linea d ecomando:
-
-- en la linea de comnando del qemu agregar los switches -s y -S (start stopped y escucha de conexion por port 1234)
-	esto es independiente del monitoreo por la opcoin server en el otro puerto que se elije para conectar por telnet
+- en la linea de comnando del qemu agregar los switches -s y -S (start stopped y escucha de conexion por port 1234) esto es independiente del monitoreo por la opcoin server en el otro puerto que se elije para conectar por telnet
 - en otra terminal iniciar el gdb usando el .gdbinit descargado del gihub de dashboard (ver arriba)
 - en el gdb ejecutar: 
 
-
-    si no se especifico el archivo de programa a depuerar en linea de comando:
+si no se especifico el archivo de programa a depuerar en linea de comando:
 
 	file <mi-objeto.o> 
 
