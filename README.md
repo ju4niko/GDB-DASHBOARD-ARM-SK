@@ -7,10 +7,10 @@ luego para que el DASHBOARD muestre por defecto los registros de la arquitectura
 
 en el ~/ del usaurio actual hacer:
 
-$ mkdir .gdbinit.d
-$ cd .gdbinit.d
-$ echo set architecture arm
-$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" > init  
+	$ mkdir .gdbinit.d
+	$ cd .gdbinit.d
+	$ echo set architecture arm
+	$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" > init  
 
 (ojo las comillas simples y dobles!)
 
@@ -24,9 +24,12 @@ Para utilizarlo con QEMU, luego de compilar nuestro programa, lanzar el QEMU con
 
     si no se especifico el archivo de programa a depuerar en linea de comando:
 
-    file <mi-objeto.o> 
+	file <mi-objeto.o> 
+
 si tiene tabla de simbolos, mejor
-    target remote localhost:1234 
+
+	target remote localhost:1234 
+
 (es el puerto en que escucha el qemu)
 
 	
@@ -34,15 +37,20 @@ al cargar el fuente del programa la configuracion de DASHBOARD nos va a mostrar 
 
 - se pueden utilizan los comandos estandar de gdb de todas formas:
 
-    continue o c
+	continue o c
+
 : continua el programa hasta el breakpoint siguiente
 
-    si 
+    	si 
+
 : step instruction, avanza una instruccion
 
-    set $<reg>=valor 
+    	set $<reg>=valor
+	
 : setea valor en el registro <reg>, ej: 
-    set $pc=0x70010000 
+	
+    	set $pc=0x70010000 
+
 setea el program counter a direccion 0x70010000
 
 x [/fmt] [<addr>]: examina memoria en varios formatos
@@ -68,27 +76,33 @@ x [/fmt] [<addr>]: examina memoria en varios formatos
         - g(giant, 8 bytes).
 
     break *<addr>
+
 : pone el breakpoint en la direccion <addr>
 
     maint info breakpoints 
+
 : listado de breakpoints y watchpoints activos
 
     delete <num>
+
 : remueve el brea(watch)kpoint numero <num> (listado con maint info)
 
     watch <expr> [mask]
-: agrega watchpoint sobre el resultado de <expr> puede ser una pos de mem un registro, un calculo, etc, siempre casteandolo a un tipo de dato, ej:
-     watch *(int)$r1
-: agrega un watchpoint que detiene ejecucion al cambiar de valor r1
 
+: agrega watchpoint sobre el resultado de <expr> puede ser una pos de mem un registro, un calculo, etc, siempre casteandolo a un tipo de dato, ej:
+
+	watch *(int)$r1
+
+: agrega un watchpoint que detiene ejecucion al cambiar de valor r1
 tambien se puede agregar una mascara (opcional) como campo de bits
 
     i r [lista de regs] 
+
 : info de registros, se puede agregar cuales ver sino muestra todos
 
 para agregar un watch sobre una area de memoria:
 
-dashboard memory watch (type cast)POSMEM [<tamanio>]
+	dashboard memory watch (type cast)POSMEM [<tamanio>]
 
 el argumento opcional <tamanio> puede ser incluso una expresion, por ejemplo:
 
