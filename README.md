@@ -1,13 +1,14 @@
 QEMU-GDB-DASHBOARD Survival Kit
 
-El dashboard se instala como .gdbinit en la carpeta raiz del usuario actual
-descargarlo de : https://github.com/cyrus-and/gdb-dashboard
+El dashboard se instala como un .gdbinit en la carpeta raiz del usuario actual, se debe
+descargar de : https://github.com/cyrus-and/gdb-dashboard
 
-luego para que el DASHBOARD muestre por defecto los registros de la arquitectura ARM hay que indicarle esto con un archivo de configuracion personalizado para que levante automaticamente esta configuracion, esto se indica agregando una linea como primer liena del .gdbinit que descargamos antes, entonces abrirlo con un editor (nano p/ej.) y agregarle lo siguiente:
+luego para que el DASHBOARD muestre por defecto los registros de la arquitectura ARM hay que indicarle esto con un archivo para personalizarlo y que levante automaticamente esta configuracion, esto se indica agregando una linea al comienzo del .gdbinit que descargamos antes, entonces abrirlo con un editor (nano p/ej.) y agregarle lo siguiente:
 
 	add-auto-load-safe-path ./.gdbinit.d/
 
-ahora en el ~/ (dir. home) del usaurio actual hacer:
+como primera linea.
+Ahora en el ~/ (dir. home, por ej /home/juan) del usaurio actual hacer:
 
 	$ mkdir .gdbinit.d
 	$ cd .gdbinit.d
@@ -15,25 +16,24 @@ ahora en el ~/ (dir. home) del usaurio actual hacer:
 	$ echo dashboard registers -style list "'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'" >> init  
 
 (ojo las comillas simples y dobles!)
-esto crea un archivo de configuracion que agrega lo que necesitamos para usar el set de registros de la arq. ARM en DASHBOARD
-Para utilizarlo con QEMU, luego de compilar nuestro programa, lanzar el QEMU con las opciones en linea de comando:
+esto crea un archivo de configuracion llamado "init" que agrega lo que necesitamos para usar el set de registros de la arq. ARM en DASHBOARD.
+Para utilizarlo con QEMU, luego de compilar nuestro programa, hay que iniciar el QEMU agregando las siguientes opciones en linea de comando:
 
-- en la linea de comnando del qemu agregar los switches -s y -S (start stopped y escucha de conexion por port 1234) esto es independiente del monitoreo por la opcoin server en el otro puerto que se elije para conectar por telnet
-- en otra terminal iniciar el gdb usando el .gdbinit descargado del gihub de dashboard (ver arriba)
-- en el gdb ejecutar: 
+- los switches -S y -s (start stopped y escucha de conexion por port 1234) esto es independiente del monitoreo por la opcoin "server" en el otro puerto que se elije para conectar por telnet.
+- en otra terminal iniciar el gdb (ahora va a cargar el .gdbinit descargado del gihub de dashboard y que modificamos nosotros)
+- invocar el gdb con el nombre el programa .elf o .bin que compilamos, si no se especifica el archivo de programa a depuerar en linea de comando, usar en la onterfaz de gdb el siguiente comando:
 
-si no se especifico el archivo de programa a depuerar en linea de comando:
+	file <mi-prog.o>|<mi-prog.elf|mi-prog.bin> 
 
-	file <mi-objeto.o> 
-
-si tiene tabla de simbolos, mejor
+si tiene tabla de simbolos, mejor, esto va a depender de como hayamos compilado el programa.
+luego, conectarnos al proceso de emulacion de QEMU con el siguiente comando en gdb:
 
 	target remote localhost:1234 
 
-(es el puerto en que escucha el qemu)
+(1234 es el puerto en que escucha el qemu por defecto)
 
 	
-al cargar el fuente del programa la configuracion de DASHBOARD nos va a mostrar automaticamente por defecto varias areas con informacion variada (registros, memoria, etc) esto es configurable, ver la documentacion de dashboard para eso.
+al cargar el fuente del programa (si es que incluimos esta opcion al compilar) la configuracion de DASHBOARD nos va a mostrar automaticamente por defecto varias areas con informacion variada (registros, memoria, breakpoints, watchpoints, etc) esto es configurable, ver la documentacion de dashboard para eso.
 
 - se pueden utilizan los comandos estandar de gdb de todas formas:
 
@@ -43,7 +43,7 @@ al cargar el fuente del programa la configuracion de DASHBOARD nos va a mostrar 
 
     	si 
 
-: step instruction, avanza una instruccion
+: step into instruction, avanza una instruccion
 
     	set $<reg>=valor
 	
@@ -51,11 +51,11 @@ al cargar el fuente del programa la configuracion de DASHBOARD nos va a mostrar 
 	
     	set $pc=0x70010000 
 
-setea el program counter a direccion 0x70010000
+setea el program counter a direccion 0x70010000, de paso esto produce que la emulacion continue la ejecucion de instrucciones en esa direccion de memoria.
 
 x [/fmt] [<addr>]: examina memoria en varios formatos
     - donde:
-        - /fmt es el formateo de datos de la siguiente forma:
+        - /fmt es el formateo de datos de la siguiente manera:
 		es una cantidad de elementos seguido de una letra de formato y una letra de tamanio
 		Format letters are 
         - o(octal), 
@@ -93,20 +93,19 @@ x [/fmt] [<addr>]: examina memoria en varios formatos
 
 	watch *(int)$r1
 
-: agrega un watchpoint que detiene ejecucion al cambiar de valor r1
-tambien se puede agregar una mascara (opcional) como campo de bits
+: agrega un watchpoint que detiene ejecucion al cambiar de valor r1 tambien se puede agregar una mascara (opcional) como campo de bits
 
     i r [lista de regs] 
 
-: info de registros, se puede agregar cuales ver sino muestra todos
+: info de registros, se puede agregar cuales ver, sino muestra todos
 
 para agregar un watch sobre una area de memoria:
 
-	dashboard memory watch (type cast)POSMEM [<tamanio>]
+	dashboard memory watch [(casteo de tipo)]<POSMEM> [<tamanio>]
 
-el argumento opcional <tamanio> puede ser incluso una expresion, por ejemplo:
+el argumento opcional <tamanio> puede ser incluso una expresion e indica cuantos bytes mostrara a partir de la POSMEM, por ejemplo:
 
-si se quiere monitorear una posicion de memoria con una variable de programa tipo int (VAR1)  castear a puntero a entero la posmem de la variable, caso contrario mostrara el casillero de memoria que corresopnde al nro almacenado en la variable
+si se quiere monitorear una posicion de memoria con una variable de programa tipo int (por caso digamos VAR1)  castear a puntero a entero la POSMEM de la variable, caso contrario mostrara el casillero de memoria que corresopnde al nro almacenado en la variable, es decir si la variable VAR1 esta en el casillero 0x700103b7 y contiene el valor 0x3a, si no casteamos a tipo puntero a entero y pedimos la direccion de la VAR1, nos mostraria el contenido del casillero de memoria 0x0000003a en lugar de mostrarnos el contenido de 0x700103b7 
 
 	dashboard memory watch (int*)&VAR1 sizeof(int)
 
@@ -114,4 +113,4 @@ para limpiar todos los watch de memoria:
 
 	dashboard memory clear
 
-esto los borra tdos, no se puede elegir uno para descartar
+esto los borra tdos, no se puede elegir uno para descartar.
