@@ -1,5 +1,8 @@
 QEMU-GDB-DASHBOARD Survival Kit
 
+NOTA IMPORTANTE:
+	Para invocar al gdb de forma que pueda debuggear codigo de ARM se bebe ejecutar como "gdb-multiarch" y no "gdb" en la linea d ecomando, la unica excepcion es en el caso de correr gdb en un S.O. que este ejecutando en un host ARM nativo (caso BBB o RasPI, tablet con ARM o MacBook con M1/2, etc)
+
 El dashboard se instala como un .gdbinit en la carpeta raiz del usuario actual, se debe
 descargar de : https://github.com/cyrus-and/gdb-dashboard
 
