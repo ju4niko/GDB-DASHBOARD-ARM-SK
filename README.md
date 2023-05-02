@@ -1,7 +1,7 @@
 QEMU-GDB-DASHBOARD Survival Kit
 
 NOTA IMPORTANTE:
-	Para invocar al gdb de forma que pueda debuggear codigo de ARM se bebe ejecutar como "gdb-multiarch" y no "gdb" en la linea d ecomando, la unica excepcion es en el caso de correr gdb en un S.O. que este ejecutando en un host ARM nativo (caso BBB o RasPI, tablet con ARM o MacBook con M1/2, etc)
+	Para invocar al gdb de forma que pueda debuggear codigo de ARM se bebe ejecutar como "gdb-multiarch" y no "gdb" en la linea de comandos, la unica excepcion es en el caso de correr gdb en un S.O. que este ejecutando en un host ARM nativo (caso BBB o RasPI, tablet con ARM o MacBook con M1/2, etc)
 
 El dashboard se instala como un .gdbinit en la carpeta raiz del usuario actual, se debe
 descargar de : https://github.com/cyrus-and/gdb-dashboard
@@ -22,13 +22,13 @@ Ahora en el ~/ (dir. home, por ej /home/juan) del usaurio actual hacer:
 esto crea un archivo de configuracion llamado "init" que agrega lo que necesitamos para usar el set de registros de la arq. ARM en DASHBOARD.
 Para utilizarlo con QEMU, luego de compilar nuestro programa, hay que iniciar el QEMU agregando las siguientes opciones en linea de comando:
 
-- los switches -S y -s (start stopped y escucha de conexion por port 1234) esto es independiente del monitoreo por la opcoin "server" en el otro puerto que se elije para conectar por telnet.
-- en otra terminal iniciar el gdb (ahora va a cargar el .gdbinit descargado del gihub de dashboard y que modificamos nosotros)
-- invocar el gdb con el nombre el programa .elf o .bin que compilamos, si no se especifica el archivo de programa a depuerar en linea de comando, usar en la onterfaz de gdb el siguiente comando:
+- los switches -S y -s (start stopped y escucha de conexion por port 1234) esto es independiente del monitoreo por la opcion "server" en el otro puerto que se elije para conectar por telnet.
+- en otra terminal iniciar el gdb (ahora va a cargar el .gdbinit descargado del github de dashboard y que modificamos nosotros)
+- invocar el gdb con el nombre del programa .elf que compilamos, si no se especifica el archivo de programa a depuerar en linea de comando, usar en la onterfaz de gdb el siguiente comando:
 
-	file <mi-prog.o>|<mi-prog.elf|mi-prog.bin> 
+	file <mi-prog.o>|<mi-prog.elf> 
 
-si tiene tabla de simbolos, mejor, esto va a depender de como hayamos compilado el programa.
+si tiene tabla de simbolos, mejor, esto va a depender de como hayamos compilado y/o ensamblado el programa (opcion -g del "as" y "gcc").
 luego, conectarnos al proceso de emulacion de QEMU con el siguiente comando en gdb:
 
 	target remote localhost:1234 
@@ -117,3 +117,13 @@ para limpiar todos los watch de memoria:
 	dashboard memory clear
 
 esto los borra tdos, no se puede elegir uno para descartar.
+
+Independientemente a toda la informacion anterior, los paneles de DASHBOARD se pueden configurar para usarse en multiples terminales, esto es util cuando se pueden abrir varias ventanas con pseudo terminaltes (pts/N), la forma de utilizarlo es abrir todas las terminales que se desee y en cada una de ellas ejecutar el comando "tty" esto arrojara algo como:
+	
+	/dev/pts/0
+
+entonces, una ved hayamos arrancado el gdb con DASBOARD, alli con el comando:
+
+	> dashboard regosters -output /dev/tty/0
+
+redireccionamos la visualizacion del panel con los registros en dicha terminal pts. Esto se puede hacer con cualquiera de los paneles de DASHBOARD.
