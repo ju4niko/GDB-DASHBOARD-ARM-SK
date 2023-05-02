@@ -124,6 +124,9 @@ Independientemente a toda la informacion anterior, los paneles de DASHBOARD se p
 
 entonces, una ved hayamos arrancado el gdb con DASBOARD, alli con el comando:
 
-	> dashboard regosters -output /dev/tty/0
+	> dashboard registers -output /dev/tty/0
 
-redireccionamos la visualizacion del panel con los registros en dicha terminal pts. Esto se puede hacer con cualquiera de los paneles de DASHBOARD.
+redireccionamos la visualizacion del panel con los registros en dicha terminal pts. Incluso se puede hacer esto con mas de un panel sobre el mismo pts.
+	
+	<img width="982" alt="Captura de pantalla 2023-05-02 a las 16 47 55" src="https://user-images.githubusercontent.com/28495810/235770257-b0ab8b09-163d-4775-9ae0-20cab893dd44.png">
+
